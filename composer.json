@@ -2,6 +2,7 @@
     "name": "skydiablo/reactphp-unifi-api-client",
     "description": "Ubiquiti Unifi API Client for ReactPHP",
     "type": "library",
+    "license": "MIT",
     "autoload": {
         "psr-4": {
             "SkyDiablo\\UnifiApiClient\\": "src/"
