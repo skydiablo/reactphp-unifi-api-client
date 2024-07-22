@@ -1,0 +1,19 @@
+{
+    "name": "skydiablo/reactphp-unifi-api-client",
+    "description": "Ubiquiti Unifi API Client for ReactPHP",
+    "type": "library",
+    "autoload": {
+        "psr-4": {
+            "SkyDiablo\\UnifiApiClient\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Volker von Hoeßlin",
+            "email": "skydiablo@gmx.net"
+        }
+    ],
+    "require": {
+        "react/http": "^3.x-dev"
+    }
+}
