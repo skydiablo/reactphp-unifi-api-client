@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace SWSN\MetaAssetProvider\Services\Ubiquiti;
+namespace SkyDiablo\UnifiApiClient;
 
 enum ApiEndpoint: string
 {

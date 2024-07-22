@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace SWSN\MetaAssetProvider\Services\Ubiquiti;
+namespace SkyDiablo\UnifiApiClient;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
@@ -11,7 +11,6 @@ use React\Http\Message\Uri;
 use React\Promise\PromiseInterface;
 use React\Socket\Connector;
 use React\Socket\ConnectorInterface;
-use function React\Promise\resolve;
 
 class UnifiClient
 {
