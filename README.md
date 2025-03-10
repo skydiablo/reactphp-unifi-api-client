@@ -1,6 +1,11 @@
 # ReactPHP Unifi API Client
 
-Ein ReactPHP-basierter Client für die Ubiquiti Unifi Controller API.
+A ReactPHP-based client for the Ubiquiti Unifi Controller API. This library enables asynchronous communication with Unifi Controllers using ReactPHP.
+
+## Requirements
+
+- PHP 8.1 or higher
+- ReactPHP HTTP Client
 
 ## Installation
 
@@ -8,7 +13,7 @@ Ein ReactPHP-basierter Client für die Ubiquiti Unifi Controller API.
 composer require skydiablo/reactphp-unifi-api-client
 ```
 
-## Verwendung
+## Usage
 
 ```php
 <?php
@@ -19,66 +24,91 @@ use SkyDiablo\UnifiApiClient\Services\BasicService;
 use SkyDiablo\UnifiApiClient\Services\Site;
 use SkyDiablo\UnifiApiClient\Services\Device;
 
-// Client erstellen
+// Create client
 $client = new UnifiClient(
     'https://unifi.example.com:8443',
     'username',
     'password'
 );
 
-// Services erstellen
+// Create services
 $basicService = new BasicService($client);
 $siteService = new Site($client);
 $deviceService = new Device($client);
 
-// Controller-Informationen abrufen
+// Get controller information
 $basicService->getInfo()->then(function (array $info) {
     echo "Controller Version: " . $info['version'] . "\n";
 });
 
-// Standorte abrufen
+// Get sites
 $siteService->getSites()->then(function (array $sites) {
     foreach ($sites as $site) {
         echo "Site: " . $site['name'] . " (" . $site['desc'] . ")\n";
     }
 });
 
-// Geräte abrufen
+// Get devices
 $deviceService->getDeviceBasics()->then(function (array $devices) {
     foreach ($devices as $device) {
         echo "Device: " . ($device['name'] ?? 'Unnamed') . " (" . $device['mac'] . ")\n";
     }
 });
 
-// Ausloggen, wenn fertig
+// Logout when finished
 $client->logout()->then(function () {
     echo "Logged out\n";
     Loop::stop();
 });
 
-// Event-Loop starten
+// Start event loop
 Loop::run();
 ```
 
-## Verfügbare Services
+## Available Services
 
 ### BasicService
 
-- `getInfo()`: Ruft Informationen über den Controller ab
+- `getInfo()`: Retrieves information about the controller
 
 ### Site
 
-- `getSites()`: Ruft alle verfügbaren Standorte ab
+- `getSites()`: Retrieves all available sites
 
 ### Device
 
-- `getDeviceBasics(string $site = 'default')`: Ruft Basisinformationen über Geräte an einem Standort ab
-- `getDevicesV2(string $site = 'default', bool $separateUnmanaged = false, bool $includeTrafficUsage = false)`: Ruft detaillierte Geräteinformationen ab (v2 API)
+- `getDeviceBasics(string $site = 'default')`: Retrieves basic information about devices at a site
+- `getDevicesV2(string $site = 'default', bool $separateUnmanaged = false, bool $includeTrafficUsage = false)`: Retrieves detailed device information (v2 API)
+
+## Error Handling
+
+All API requests return a Promise object. Use the `catch` method to handle errors:
+
+```php
+$client->login()->then(
+    function () {
+        echo "Login successful\n";
+    },
+    function (\Exception $e) {
+        echo "Login failed: " . $e->getMessage() . "\n";
+    }
+);
+```
 
 ## Tests
 
-Das Projekt enthält eine umfangreiche Test-Suite mit Unit-Tests und Integrationstests. Weitere Informationen finden Sie in der [Test-Dokumentation](tests/README.md).
+The project includes a comprehensive test suite with unit tests and integration tests. For more information, see the [Test Documentation](tests/README.md).
 
-## Lizenz
+## Contributing
+
+Contributions are welcome! Please ensure your changes pass the tests and add new tests as needed.
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
 
 MIT 
