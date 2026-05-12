@@ -8,18 +8,21 @@ use React\Promise\PromiseInterface;
 use SkyDiablo\UnifiApiClient\ApiEndpoint;
 use SkyDiablo\UnifiApiClient\UnifiClient;
 
-class BasicService {
+class BasicService
+{
 
     public const string DEFAULT_SITE = 'default';
 
-    public function __construct(protected UnifiClient $unifiClient)
-    {
-
-    }
+    public function __construct(protected UnifiClient $unifiClient) {}
 
     public function getInfo(): PromiseInterface
     {
         return $this->unifiClient->get(ApiEndpoint::INFO);
+    }
+
+    public function getSelf(): PromiseInterface
+    {
+        return $this->unifiClient->get(ApiEndpoint::SELF);
     }
 
 }

@@ -72,7 +72,7 @@ class DeviceTest extends TestCase
                 $resolve($deviceData);
             }));
         
-        $promise = $this->deviceService->getDeviceBasics();
+        $promise = $this->deviceService->getBasics();
         
         $promise->then(function ($result) use ($deviceData) {
             $this->assertEquals($deviceData['data'], $result);
@@ -122,7 +122,7 @@ class DeviceTest extends TestCase
                 $resolve($deviceData);
             }));
         
-        $promise = $this->deviceService->getDeviceBasics('custom');
+        $promise = $this->deviceService->getBasics('custom');
         
         $promise->then(function ($result) use ($deviceData) {
             $this->assertEquals($deviceData['data'], $result);
@@ -170,12 +170,12 @@ class DeviceTest extends TestCase
         
         $this->unifiClientMock->shouldReceive('get')
             ->once()
-            ->with(ApiEndpoint::DEVICES_V2, ['site' => 'default'], [])
+            ->with(ApiEndpoint::DEVICES, ['site' => 'default'], [])
             ->andReturn(new Promise(function ($resolve) use ($deviceData) {
                 $resolve($deviceData);
             }));
         
-        $promise = $this->deviceService->getDevicesV2();
+        $promise = $this->deviceService->get();
         
         $promise->then(function ($result) use ($deviceData) {
             $this->assertEquals($deviceData, $result);
@@ -233,7 +233,7 @@ class DeviceTest extends TestCase
         
         $this->unifiClientMock->shouldReceive('get')
             ->once()
-            ->with(ApiEndpoint::DEVICES_V2, ['site' => 'custom'], [
+            ->with(ApiEndpoint::DEVICES, ['site' => 'custom'], [
                 'includeTrafficUsage' => true,
                 'separateUnmanaged' => true
             ])
@@ -241,7 +241,7 @@ class DeviceTest extends TestCase
                 $resolve($deviceData);
             }));
         
-        $promise = $this->deviceService->getDevicesV2('custom', true, true);
+        $promise = $this->deviceService->get('custom', true, true);
         
         $promise->then(function ($result) use ($deviceData) {
             $this->assertEquals($deviceData, $result);

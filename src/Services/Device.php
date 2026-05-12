@@ -9,15 +9,15 @@ use SkyDiablo\UnifiApiClient\ApiEndpoint;
 
 class Device extends BasicService {
 
-    public function getDeviceBasics(string $site = self::DEFAULT_SITE): PromiseInterface
+    public function getBasics(string $site = self::DEFAULT_SITE): PromiseInterface
     {
         return $this->unifiClient->get(ApiEndpoint::DEVICE_BASICS, ['site' => $site])
             ->then(fn(array $data) => $data['data'] ?? []);
     }
 
-    public function getDevicesV2(string $site = self::DEFAULT_SITE, bool $separateUnmanaged = false, bool $includeTrafficUsage = false): PromiseInterface
+    public function get(string $site = self::DEFAULT_SITE, bool $separateUnmanaged = false, bool $includeTrafficUsage = false): PromiseInterface
     {
-        return $this->unifiClient->get(ApiEndpoint::DEVICES_V2, ['site' => $site], array_filter([
+        return $this->unifiClient->get(ApiEndpoint::DEVICES, ['site' => $site], array_filter([
             'includeTrafficUsage' => $includeTrafficUsage,
             'separateUnmanaged' => $separateUnmanaged,
         ]));

@@ -24,7 +24,7 @@ class UnifiClient
         string             $uri,
         protected string   $username,
         protected string   $password,
-        ConnectorInterface $connector = null
+        protected ?ConnectorInterface $connector = null
     )
     {
         $this->httpClient = (new Browser($connector ?? new Connector(

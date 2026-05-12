@@ -42,14 +42,14 @@ $basicService->getInfo()->then(function (array $info) {
 });
 
 // Get sites
-$siteService->getSites()->then(function (array $sites) {
+$siteService->get()->then(function (array $sites) {
     foreach ($sites as $site) {
         echo "Site: " . $site['name'] . " (" . $site['desc'] . ")\n";
     }
 });
 
 // Get devices
-$deviceService->getDeviceBasics()->then(function (array $devices) {
+$deviceService->getBasics()->then(function (array $devices) {
     foreach ($devices as $device) {
         echo "Device: " . ($device['name'] ?? 'Unnamed') . " (" . $device['mac'] . ")\n";
     }

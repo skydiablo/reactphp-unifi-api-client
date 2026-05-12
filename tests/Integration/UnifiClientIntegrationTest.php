@@ -60,7 +60,7 @@ class UnifiClientIntegrationTest extends TestCase
     {
         $promise = $this->client->get(ApiEndpoint::INFO);
 
-        $result = null;
+        $result = [];
         $promise->then(function ($data) use (&$result) {
             $result = $data;
             Loop::stop();
@@ -76,7 +76,7 @@ class UnifiClientIntegrationTest extends TestCase
     {
         $promise = $this->basicService->getInfo();
 
-        $result = null;
+        $result = [];
         $promise->then(function ($data) use (&$result) {
             $result = $data;
             Loop::stop();
@@ -93,9 +93,9 @@ class UnifiClientIntegrationTest extends TestCase
 
     public function testGetSites(): void
     {
-        $promise = $this->siteService->getSites();
+        $promise = $this->siteService->get();
 
-        $result = null;
+        $result = [];
         $promise->then(function ($data) use (&$result) {
             $result = $data;
             Loop::stop();
@@ -108,11 +108,85 @@ class UnifiClientIntegrationTest extends TestCase
         $this->assertArrayHasKey('name', $result[0]);
     }
 
+    public function testSiteHealth(): void
+    {
+        // Hole zuerst die verfügbaren Sites
+        $sites = [];
+        $this->siteService->get()->then(function ($data) use (&$sites) {
+            $sites = $data;
+            Loop::stop();
+        });
+        Loop::run();
+        
+        $this->assertIsArray($sites);
+        $this->assertGreaterThan(0, count($sites));
+        
+        // Verwende die erste Site für den Health-Test
+        $siteName = $sites[0]['name'];
+        
+        $promise = $this->siteService->health($siteName);
+
+        $result = [];
+        $promise->then(function ($data) use (&$result) {
+            $result = $data;
+            Loop::stop();
+        });
+
+        Loop::run();
+
+        $this->assertIsArray($result);
+        $this->assertGreaterThan(0, count($result));
+        
+        // Überprüfe, ob die erwarteten Subsysteme vorhanden sind
+        $expectedSubsystems = ['wlan', 'wan', 'www', 'lan', 'vpn'];
+        $subsystems = array_column($result, 'subsystem');
+        
+        foreach ($expectedSubsystems as $expectedSubsystem) {
+            $this->assertContains($expectedSubsystem, $subsystems, "$expectedSubsystem subsystem should be present");
+        }
+        
+        // Überprüfe die Struktur jedes Subsystems
+        foreach ($result as $subsystem) {
+            $this->assertArrayHasKey('subsystem', $subsystem);
+            $this->assertArrayHasKey('status', $subsystem);
+            
+            // Je nach Subsystem-Typ weitere Prüfungen
+            switch ($subsystem['subsystem']) {
+                case 'wlan':
+                    $this->assertArrayHasKey('num_ap', $subsystem);
+                    $this->assertArrayHasKey('num_adopted', $subsystem);
+                    $this->assertArrayHasKey('num_disabled', $subsystem);
+                    $this->assertArrayHasKey('num_disconnected', $subsystem);
+                    $this->assertArrayHasKey('num_pending', $subsystem);
+                    break;
+                    
+                case 'wan':
+                    $this->assertArrayHasKey('num_gw', $subsystem);
+                    $this->assertArrayHasKey('num_adopted', $subsystem);
+                    $this->assertArrayHasKey('num_disconnected', $subsystem);
+                    $this->assertArrayHasKey('num_pending', $subsystem);
+                    break;
+                    
+                case 'lan':
+                    $this->assertArrayHasKey('num_sw', $subsystem);
+                    $this->assertArrayHasKey('num_adopted', $subsystem);
+                    $this->assertArrayHasKey('num_disconnected', $subsystem);
+                    $this->assertArrayHasKey('num_pending', $subsystem);
+                    break;
+                    
+                case 'www':
+                case 'vpn':
+                    // Diese Subsysteme haben nur den Status
+                    break;
+            }
+        }
+    }
+
     public function testGetDeviceBasics(): void
     {
-        $promise = $this->deviceService->getDeviceBasics();
+        $promise = $this->deviceService->getBasics();
 
-        $result = null;
+        $result = [];
         $promise->then(function ($data) use (&$result) {
             $result = $data;
             Loop::stop();
@@ -125,9 +199,9 @@ class UnifiClientIntegrationTest extends TestCase
 
     public function testGetDevicesV2(): void
     {
-        $promise = $this->deviceService->getDevicesV2();
+        $promise = $this->deviceService->get();
 
-        $result = null;
+        $result = [];
         $promise->then(function ($data) use (&$result) {
             $result = $data;
             Loop::stop();

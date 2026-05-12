@@ -116,4 +116,68 @@ class BasicServiceTest extends TestCase
             $this->assertCount(2, $result['sites']);
         });
     }
+    
+    public function testGetSelf(): void
+    {
+        $responseData = [
+            'meta' => [
+                'rc' => 'ok'
+            ],
+            'data' => [
+                [
+                    'admin_id' => '6530f2f1ca649c5968c5fa33',
+                    'device_id' => '349fd5f2-f071-4559-ad88-5effdb7a9e70',
+                    'email' => 'dummy@foo.bar',
+                    'email_alert_enabled' => true,
+                    'email_alert_grouping_delay' => 60,
+                    'email_alert_grouping_enabled' => true,
+                    'html_email_enabled' => true,
+                    'is_owner' => true,
+                    'is_professional_installer' => true,
+                    'is_super' => true,
+                    'last_site_name' => 'erq2fau2',
+                    'name' => 'admin',
+                    'push_alert_enabled' => true,
+                    'requires_new_password' => false,
+                    'super_site_permissions' => [],
+                    'ui_settings' => [
+                        'preferredLanguage' => 'en',
+                        'neverCheckForUpdate' => false,
+                        // UI settings truncated for brevity
+                    ],
+                    'last_login_ip' => '127.0.0.1',
+                    'last_login_timestamp' => 1741603173
+                ]
+            ]
+        ];
+
+        $this->unifiClientMock
+            ->shouldReceive('get')
+            ->once()
+            ->with(ApiEndpoint::SELF)
+            ->andReturn(
+                new Promise(function ($resolve) use ($responseData) {
+                    $resolve($responseData);
+                }),
+            );
+
+        $promise = $this->basicService->getSelf();
+
+        $promise->then(function ($result) use ($responseData) {
+            $this->assertEquals($responseData, $result);
+            $this->assertArrayHasKey('meta', $result);
+            $this->assertArrayHasKey('data', $result);
+            $this->assertEquals('ok', $result['meta']['rc']);
+            $this->assertCount(1, $result['data']);
+            
+            $adminData = $result['data'][0];
+            $this->assertEquals('6530f2f1ca649c5968c5fa33', $adminData['admin_id']);
+            $this->assertEquals('349fd5f2-f071-4559-ad88-5effdb7a9e70', $adminData['device_id']);
+            $this->assertEquals('dummy@foo.bar', $adminData['email']);
+            $this->assertEquals('admin', $adminData['name']);
+            $this->assertTrue($adminData['is_super']);
+            $this->assertEquals('127.0.0.1', $adminData['last_login_ip']);
+            $this->assertEquals(1741603173, $adminData['last_login_timestamp']);
+        });
+    }
 } 
