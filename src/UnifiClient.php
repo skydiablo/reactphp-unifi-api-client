@@ -17,8 +17,8 @@ class UnifiClient
 
     protected Browser $httpClient;
 
-    private ?string $unifiSession = null;
-    private ?string $csrfToken = null;
+    protected ?string $unifiSession = null;
+    protected ?string $csrfToken = null;
 
     public function __construct(
         string             $uri,
@@ -35,7 +35,16 @@ class UnifiClient
                 ],
             ]
         )
-        ))->withBase(rtrim($uri, '/') . '/');
+        ))->withBase($this->buildBaseUri($uri));
+    }
+
+    /**
+     * Build the HTTP client base URI from the controller DSN.
+     * Legacy controllers use the DSN as-is; subclasses may add a path prefix.
+     */
+    protected function buildBaseUri(string $uri): string
+    {
+        return rtrim($uri, '/') . '/';
     }
 
     protected function defaultHeader(array $header = []): array
@@ -101,7 +110,7 @@ class UnifiClient
         )
             ->then(fn(ResponseInterface $response) => $this->parseSetCookies($response)->decode($response))
             ->catch(function (ResponseException $e) use ($autoLogin, $endpoint, $pathParams, $queryParams, $data) {
-                if ($autoLogin) {
+                if ($autoLogin && $this->shouldAutoLogin()) {
                     return $this->login($this->username, $this->password)->then(function () use ($endpoint, $pathParams, $queryParams, $data) {
                         return $this->post($data, $endpoint, $pathParams, $queryParams, false);
                     });
@@ -126,13 +135,21 @@ class UnifiClient
         )
             ->then(fn(ResponseInterface $response) => $this->parseSetCookies($response)->decode($response))
             ->catch(function (ResponseException $e) use ($autoLogin, $endpoint, $pathParams, $queryParams) {
-                if ($autoLogin) {
+                if ($autoLogin && $this->shouldAutoLogin()) {
                     return $this->login($this->username, $this->password)->then(function () use ($endpoint, $pathParams, $queryParams) {
                         return $this->get($endpoint, $pathParams, $queryParams, false);
                     });
                 }
                 throw $e;
             });
+    }
+
+    /**
+     * Whether failed requests may trigger a username/password login retry.
+     */
+    protected function shouldAutoLogin(): bool
+    {
+        return true;
     }
 
     protected function addQueryParams(array $queryParams, Uri $uri): UriInterface

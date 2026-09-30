@@ -13,6 +13,16 @@ A ReactPHP-based client for the Ubiquiti Unifi Controller API. This library enab
 composer require skydiablo/reactphp-unifi-api-client
 ```
 
+## Clients
+
+### Legacy controller (`UnifiClient`)
+
+Self-hosted Network Application (typically port `8443`). Uses username/password and session cookies. Endpoint paths are used as-is.
+
+### UniFi OS / UniFi OS Server (`UnifiOsClient`)
+
+UDM/UCG/UniFi OS Server (UniFi OS Server typically port `11443`). Uses an API key (`X-API-Key`) and prefixes all requests with `proxy/network` internally. Classic endpoint paths stay the same.
+
 ## Usage
 
 ```php
@@ -20,16 +30,23 @@ composer require skydiablo/reactphp-unifi-api-client
 
 use React\EventLoop\Loop;
 use SkyDiablo\UnifiApiClient\UnifiClient;
+use SkyDiablo\UnifiApiClient\UnifiOsClient;
 use SkyDiablo\UnifiApiClient\Services\BasicService;
 use SkyDiablo\UnifiApiClient\Services\Site;
 use SkyDiablo\UnifiApiClient\Services\Device;
 
-// Create client
+// Legacy controller
 $client = new UnifiClient(
     'https://unifi.example.com:8443',
     'username',
     'password'
 );
+
+// Or UniFi OS Server / UniFi OS console
+// $client = new UnifiOsClient(
+//     'https://uos.example.com:11443',
+//     'your-api-key'
+// );
 
 // Create services
 $basicService = new BasicService($client);
@@ -55,7 +72,7 @@ $deviceService->getBasics()->then(function (array $devices) {
     }
 });
 
-// Logout when finished
+// Logout when finished (no-op for UnifiOsClient)
 $client->logout()->then(function () {
     echo "Logged out\n";
     Loop::stop();
@@ -73,12 +90,13 @@ Loop::run();
 
 ### Site
 
-- `getSites()`: Retrieves all available sites
+- `get()`: Retrieves all available sites
+- `health(string $site = 'default')`: Retrieves site health statistics
 
 ### Device
 
-- `getDeviceBasics(string $site = 'default')`: Retrieves basic information about devices at a site
-- `getDevicesV2(string $site = 'default', bool $separateUnmanaged = false, bool $includeTrafficUsage = false)`: Retrieves detailed device information (v2 API)
+- `getBasics(string $site = 'default')`: Retrieves basic information about devices at a site
+- `get(string $site = 'default', bool $separateUnmanaged = false, bool $includeTrafficUsage = false)`: Retrieves detailed device information (v2 API)
 
 ## Error Handling
 
